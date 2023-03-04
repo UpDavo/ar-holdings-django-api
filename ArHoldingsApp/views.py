@@ -4,9 +4,6 @@ from django.http.response import JsonResponse
 from datetime import date
 import json
 
-# from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.parsers import JSONParser
-
 
 # Modelos de la base de datos
 from ArHoldingsApp.models import (
@@ -17,13 +14,6 @@ from ArHoldingsApp.serializers import (
     CatalogoSerializer,
     FacturacionEncabezadoSerializer,
 )
-
-# Create your views here.
-
-HEADERS = {
-    "X-Shopify-Access-Token": "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",
-    "Content-Type": "application/json",
-}
 
 
 # Views for products
@@ -233,5 +223,16 @@ class GetInvoice(generics.GenericAPIView):
 
     def get(self, request):
         invoices = FacturacionEncabezado.objects.all()  # .get(ID=request.GET.get("id"))
+        serialized_invoices = self.serializer_class(invoices, many=True)
+        return JsonResponse(serialized_invoices.data, safe=False)
+
+
+class GetInvoiceID(generics.GenericAPIView):
+    serializer_class = FacturacionEncabezadoSerializer
+    queryset = FacturacionEncabezado.objects.all()
+
+    def get(self, request, id, *args, **kwargs):
+        invoice_id = id
+        invoices = FacturacionEncabezado.objects.get(ID=invoice_id)
         serialized_invoices = self.serializer_class(invoices, many=True)
         return JsonResponse(serialized_invoices.data, safe=False)

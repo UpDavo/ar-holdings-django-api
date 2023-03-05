@@ -1,5 +1,7 @@
 # from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_framework.decorators import action
+
 from django.http.response import JsonResponse
 from datetime import date
 import json
@@ -19,24 +21,26 @@ from ArHoldingsApp.serializers import (
 # Views for products
 
 
-class GetProducts(generics.GenericAPIView):
+class GetProducts(generics.RetrieveAPIView):
 
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
     # Get all articles
+    @action(detail=False, methods=["GET"])
     def get(self, request):
         print(request)
-        catalogo = CatalogoArticulos.objects.all()  # .get(ID=request.GET.get("id"))
+        catalogo = CatalogoArticulos.objects.all()
         articulo = self.serializer_class(catalogo, many=True)
         return JsonResponse(articulo.data, safe=False)
 
 
-class InsertProduct(generics.GenericAPIView):
+class InsertProduct(generics.RetrieveAPIView):
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
     # Post an article if no exists
+    @action(detail=False, methods=["POST"])
     def post(self, request):
 
         post_data = self.format_data(request)
@@ -86,11 +90,12 @@ class InsertProduct(generics.GenericAPIView):
         return final
 
 
-class UpdateProduct(generics.GenericAPIView):
+class UpdateProduct(generics.RetrieveAPIView):
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
     # Update an article stock if exists
+    @action(detail=False, methods=["POST"])
     def post(self, request):
         update_data = self.format_data(request)
         catalogo_existente = CatalogoArticulos.objects.get(ID=update_data["ID"])
@@ -131,10 +136,11 @@ class UpdateProduct(generics.GenericAPIView):
         return final
 
 
-class DeleteProduct(generics.GenericAPIView):
+class DeleteProduct(generics.RetrieveAPIView):
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
+    @action(detail=False, methods=["POST"])
     def post(self, request):
         catalogo_existente = CatalogoArticulos.objects.get(ID=request.data["id"])
         catalogo_existente.delete()
@@ -144,10 +150,11 @@ class DeleteProduct(generics.GenericAPIView):
 # Views for invoices
 
 
-class SetInvoice(generics.GenericAPIView):
+class SetInvoice(generics.RetrieveAPIView):
     serializer_class = FacturacionEncabezadoSerializer
     queryset = FacturacionEncabezado.objects.all()
 
+    @action(detail=False, methods=["POST"])
     def post(self, request):
 
         post_data = self.format_data(request)
@@ -217,22 +224,20 @@ class SetInvoice(generics.GenericAPIView):
         return final
 
 
-class GetInvoice(generics.GenericAPIView):
+class GetInvoice(generics.RetrieveAPIView):
     serializer_class = FacturacionEncabezadoSerializer
     queryset = FacturacionEncabezado.objects.all()
+    lookup_field = "id"
 
-    def get(self, request):
-        invoices = FacturacionEncabezado.objects.all()  # .get(ID=request.GET.get("id"))
-        serialized_invoices = self.serializer_class(invoices, many=True)
-        return JsonResponse(serialized_invoices.data, safe=False)
+    def get_queryset(self,invoice_id):
+        queryset_2 = FacturacionEncabezado.objects.all()
+        if invoice_id is not None:
+            queryset_2 = queryset_2.filter(ID=invoice_id)
+        return queryset_2
 
-
-class GetInvoiceID(generics.GenericAPIView):
-    serializer_class = FacturacionEncabezadoSerializer
-    queryset = FacturacionEncabezado.objects.all()
-
-    def get(self, request, id, *args, **kwargs):
-        invoice_id = id
-        invoices = FacturacionEncabezado.objects.get(ID=invoice_id)
-        serialized_invoices = self.serializer_class(invoices, many=True)
+    @action(detail=False, methods=["GET"])
+    def get(self, request, *args, **kwargs):
+        invoice_id = kwargs.get('id')
+        queryset_final = self.get_queryset(invoice_id)
+        serialized_invoices = self.serializer_class(queryset_final, many=True)
         return JsonResponse(serialized_invoices.data, safe=False)

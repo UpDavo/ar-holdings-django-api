@@ -1,4 +1,5 @@
-from django.urls import re_path
+from django.urls import path, include
+from rest_framework import routers
 from ArHoldingsApp.views import (
     InsertProduct,
     UpdateProduct,
@@ -6,19 +7,28 @@ from ArHoldingsApp.views import (
     GetProducts,
     SetInvoice,
     GetInvoice,
-    GetInvoiceID,
 )
+
+# roter = routers.DefaultRouter()
+# roter.register(r"products/getProducts", GetProducts, basename="get_products")
+# roter.register(r"products/insertProduct", InsertProduct)
+# roter.register(r"products/updateProduct", UpdateProduct)
+# roter.register(r"products/deleteProduct", DeleteProduct)
+# roter.register(r"invoice/setInvoice", SetInvoice)
+# roter.register(r"invoice/getInvoice", GetInvoice)
+# roter.register(r"invoice/getInvoice/(?P<id>\d+)", GetInvoice)
 
 
 urlpatterns = [
-    # Catalogo
-    re_path(r"products/insertProduct", InsertProduct.as_view()),
-    re_path(r"products/updateProduct", UpdateProduct.as_view()),
-    re_path(r"products/deleteProduct", DeleteProduct.as_view()),
-    re_path(r"products/getProducts", GetProducts.as_view()),
-    re_path(r"invoice/setInvoice", SetInvoice.as_view()),
-    re_path(r"invoice/getInvoice", GetInvoice.as_view()),
-    re_path(r"^invoice/getInvoice/(?P<id>\d+)/$", GetInvoiceID.as_view()),
+    # # Catalogo
+    path(r"products/insertProduct/", InsertProduct.as_view()),
+    path(r"products/updateProduct/", UpdateProduct.as_view()),
+    path(r"products/deleteProduct/", DeleteProduct.as_view()),
+    path(r"products/getProducts/", GetProducts.as_view()),
+    path(r"invoice/setInvoice/", SetInvoice.as_view()),
+    path(r"invoice/getInvoice/", GetInvoice.as_view()),
+    path(r"invoice/getInvoice/<int:pk>", GetInvoice.as_view()),
+    # path(r"api/", include(roter.urls)),
     # Logs de Catalogo
 ]
 

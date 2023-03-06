@@ -1,7 +1,9 @@
 # from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, authentication, permissions
 from rest_framework.decorators import action
-
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 from django.http.response import JsonResponse
 from datetime import date
 import json
@@ -23,6 +25,8 @@ from ArHoldingsApp.serializers import (
 
 class GetProducts(generics.RetrieveAPIView):
 
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -36,6 +40,8 @@ class GetProducts(generics.RetrieveAPIView):
 
 
 class InsertProduct(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -91,6 +97,8 @@ class InsertProduct(generics.RetrieveAPIView):
 
 
 class UpdateProduct(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -137,6 +145,8 @@ class UpdateProduct(generics.RetrieveAPIView):
 
 
 class DeleteProduct(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -151,6 +161,8 @@ class DeleteProduct(generics.RetrieveAPIView):
 
 
 class SetInvoice(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = FacturacionEncabezadoSerializer
     queryset = FacturacionEncabezado.objects.all()
 
@@ -225,11 +237,13 @@ class SetInvoice(generics.RetrieveAPIView):
 
 
 class GetInvoice(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = FacturacionEncabezadoSerializer
     queryset = FacturacionEncabezado.objects.all()
     lookup_field = "id"
 
-    def get_queryset(self,invoice_id):
+    def get_queryset(self, invoice_id):
         queryset_2 = FacturacionEncabezado.objects.all()
         if invoice_id is not None:
             queryset_2 = queryset_2.filter(ID=invoice_id)
@@ -237,7 +251,18 @@ class GetInvoice(generics.RetrieveAPIView):
 
     @action(detail=False, methods=["GET"])
     def get(self, request, *args, **kwargs):
-        invoice_id = kwargs.get('id')
+        invoice_id = kwargs.get("id")
         queryset_final = self.get_queryset(invoice_id)
         serialized_invoices = self.serializer_class(queryset_final, many=True)
         return JsonResponse(serialized_invoices.data, safe=False)
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key, "user_id": user.pk, "email": user.email})

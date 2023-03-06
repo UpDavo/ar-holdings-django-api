@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from ArHoldingsApp.views import (
+    CustomAuthToken,
     InsertProduct,
     UpdateProduct,
     DeleteProduct,
@@ -28,8 +29,7 @@ urlpatterns = [
     path(r"invoice/setInvoice/", SetInvoice.as_view()),
     path(r"invoice/getInvoice/", GetInvoice.as_view()),
     path(r"invoice/getInvoice/<int:pk>", GetInvoice.as_view()),
-    # path(r"api/", include(roter.urls)),
-    # Logs de Catalogo
+    path("token/auth/", CustomAuthToken.as_view()),
 ]
 
 # 1197085556960 Insert

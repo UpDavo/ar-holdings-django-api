@@ -200,16 +200,14 @@ class SetInvoice(generics.RetrieveAPIView):
             "Fecha": request.data["created_at"],
             "cliente": [
                 {
-                    "Nombre": request.data["customer"]["first_name"]
-                    + " "
-                    + request.data["customer"]["last_name"],
+                    "Nombre":request.data["customer"]["first_name"]+" "+request.data["customer"]["last_name"] if len(request.data["customer"]) > 0 else "Null",
                     "Telefono": request.data["customer"]["phone"]
                     if request.data["customer"]["phone"]
                     else "None",
-                    "Correo": request.data["customer"]["email"],
+                    "Correo": request.data["customer"]["email"] if len(request.data["customer"]) > 0 else "Null",
                     "Direccion": request.data["customer"]["default_address"][
                         "address1"
-                    ],
+                    ] if len(request.data["customer"]) > 0 else "Null",
                 }
             ],
             "detalle": [],

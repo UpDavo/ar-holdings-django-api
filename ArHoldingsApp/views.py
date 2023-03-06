@@ -166,8 +166,6 @@ class SetInvoice(generics.RetrieveAPIView):
 
     @action(detail=False, methods=["POST"])
     def post(self, request):
-
-        print(request.data)
         post_data = self.format_data(request)
         ID = CatalogoArticulos.objects.filter(ID=post_data["ID"])
 
@@ -194,12 +192,11 @@ class SetInvoice(generics.RetrieveAPIView):
     # It creates logs per api endpoint
     def format_data(self, request):
         invoice_id = request.data["id"]
-
         final = {
             "ID": invoice_id,
             "NumerOrden": request.data["order_number"],
-            "Total": request.data["total_price"],
-            "Moneda": request.data["currency"],
+            "Total": int(float(request.data["current_total_price"])),
+            "Moneda": request.data["presentment_currency"],
             "Fecha": request.data["created_at"],
             "cliente": [
                 {
@@ -230,6 +227,7 @@ class SetInvoice(generics.RetrieveAPIView):
                     "Total": product["quantity"] * product["price"],
                 }
             )
+
         return final
 
 

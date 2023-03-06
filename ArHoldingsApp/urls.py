@@ -34,5 +34,5 @@ urlpatterns = [
 
 # 1197085556960 Insert product
 # 1197085589728 Delete product
-# 1197080576224 Insert invoice
+# 1197262209248 Insert invoice
 # 1197261455584 update product

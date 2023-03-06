@@ -33,7 +33,6 @@ class GetProducts(generics.RetrieveAPIView):
     # Get all articles
     @action(detail=False, methods=["GET"])
     def get(self, request):
-        print(request)
         catalogo = CatalogoArticulos.objects.all()
         articulo = self.serializer_class(catalogo, many=True)
         return JsonResponse(articulo.data, safe=False)
@@ -140,7 +139,6 @@ class UpdateProduct(generics.RetrieveAPIView):
                 }
             ],
         }
-        print(final)
         return final
 
 
@@ -218,8 +216,6 @@ class SetInvoice(generics.RetrieveAPIView):
             ],
             "detalle": [],
         }
-
-        # print(request.data["line_items"])
 
         for product in request.data["line_items"]:
             final["detalle"].append(

@@ -32,6 +32,6 @@ urlpatterns = [
     path("token/auth/", CustomAuthToken.as_view()),
 ]
 
-# 1197085556960 Insert
-# 1197085589728 Delete
-# 1197085655264 Update
+# 1197085556960 Insert product
+# 1197085589728 Delete product
+# 1197080576224 Insert invoice

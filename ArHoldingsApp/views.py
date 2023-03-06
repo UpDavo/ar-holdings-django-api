@@ -40,8 +40,8 @@ class GetProducts(generics.RetrieveAPIView):
 
 
 class InsertProduct(generics.RetrieveAPIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -97,8 +97,8 @@ class InsertProduct(generics.RetrieveAPIView):
 
 
 class UpdateProduct(generics.RetrieveAPIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -145,8 +145,8 @@ class UpdateProduct(generics.RetrieveAPIView):
 
 
 class DeleteProduct(generics.RetrieveAPIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = CatalogoSerializer
     queryset = CatalogoArticulos.objects.all()
 
@@ -161,8 +161,8 @@ class DeleteProduct(generics.RetrieveAPIView):
 
 
 class SetInvoice(generics.RetrieveAPIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = FacturacionEncabezadoSerializer
     queryset = FacturacionEncabezado.objects.all()
 

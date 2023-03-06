@@ -167,6 +167,7 @@ class SetInvoice(generics.RetrieveAPIView):
     @action(detail=False, methods=["POST"])
     def post(self, request):
 
+        print(request.data)
         post_data = self.format_data(request)
         ID = CatalogoArticulos.objects.filter(ID=post_data["ID"])
 

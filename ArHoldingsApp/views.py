@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.http.response import JsonResponse
 from datetime import date
 import json
+import requests
 
 
 # Modelos de la base de datos
@@ -79,9 +80,9 @@ class InsertProduct(generics.RetrieveAPIView):
             "SKU": request.data["title"],
             "ImagenURI": "None"
             if len(request.data["images"]) == 0
-            else request.data["images"]["src"],
+            else request.data["image"]["src"],
             "Nombre": request.data["title"],
-            "Cantidad": request.data["variants"][0]["inventory_quantity"],
+            "Cantidad": 0,
             "FechaRegistro": request.data["created_at"],
             "UltimaFechaActualizacion": request.data["updated_at"],
             "Sincronizado": True,
@@ -92,6 +93,9 @@ class InsertProduct(generics.RetrieveAPIView):
                 }
             ],
         }
+
+        for variants in request.data["variants"]:
+            final["Cantidad"] += variants["inventory_quantity"]
         return final
 
 
@@ -126,9 +130,9 @@ class UpdateProduct(generics.RetrieveAPIView):
             "SKU": request.data["title"],
             "ImagenURI": "None"
             if len(request.data["images"]) == 0
-            else request.data["images"]["src"],
+            else request.data["image"]["src"],
             "Nombre": request.data["title"],
-            "Cantidad": request.data["variants"][0]["inventory_quantity"],
+            "Cantidad": 0,
             "FechaRegistro": request.data["created_at"],
             "UltimaFechaActualizacion": request.data["updated_at"],
             "Sincronizado": True,
@@ -139,6 +143,9 @@ class UpdateProduct(generics.RetrieveAPIView):
                 }
             ],
         }
+
+        for variants in request.data["variants"]:
+            final["Cantidad"] += variants["inventory_quantity"]
         return final
 
 
@@ -200,14 +207,20 @@ class SetInvoice(generics.RetrieveAPIView):
             "Fecha": request.data["created_at"],
             "cliente": [
                 {
-                    "Nombre":request.data["customer"]["first_name"]+" "+request.data["customer"]["last_name"] if len(request.data["customer"]) > 0 else "Null",
+                    "Nombre": request.data["customer"]["first_name"]
+                    + " "
+                    + request.data["customer"]["last_name"]
+                    if len(request.data["customer"]) > 0
+                    else "Null",
                     "Telefono": request.data["customer"]["phone"]
                     if request.data["customer"]["phone"]
                     else "None",
-                    "Correo": request.data["customer"]["email"] if len(request.data["customer"]) > 0 else "Null",
-                    "Direccion": request.data["customer"]["default_address"][
-                        "address1"
-                    ] if len(request.data["customer"]) > 0 else "Null",
+                    "Correo": request.data["customer"]["email"]
+                    if len(request.data["customer"]) > 0
+                    else "Null",
+                    "Direccion": request.data["customer"]["default_address"]["address1"]
+                    if len(request.data["customer"]) > 0
+                    else "Null",
                 }
             ],
             "detalle": [],
@@ -259,3 +272,71 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data["user"]
         token, created = Token.objects.get_or_create(user=user)
         return Response({"token": token.key, "user_id": user.pk, "email": user.email})
+
+
+class bulkInserProducts(generics.RetrieveAPIView):
+    serializer_class = CatalogoSerializer
+    queryset = CatalogoArticulos.objects.all()
+
+    # Post an article if no exists
+    @action(detail=False, methods=["GET"])
+    def get(self, request):
+        data = requests.get(
+            "https://ar-holdings-dev-test.myshopify.com/admin/api/2023-01/products.json",
+            headers={
+                "X-Shopify-Access-Token": "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"
+            },
+        )
+        data_json = data.json()
+        post_data = self.format_data(data_json["products"])
+        print(post_data)
+
+        for product in post_data:
+
+            SKU = CatalogoArticulos.objects.filter(SKU=product["SKU"])
+            if SKU.exists():
+                print("existe")
+                continue
+            else:
+                serializer = self.serializer_class(data=product)
+                if serializer.is_valid():
+                    print("valid")
+                    serializer.save()
+                else:
+                    print("invalid")
+                    continue
+
+        return JsonResponse(
+            {"status": "success", "request": post_data},
+            status=status.HTTP_201_CREATED,
+        )
+
+    # It creates logs per api endpoint
+    def format_data(self, product_list):
+        final_list = []
+        for product in product_list:
+            final = {
+                "ID": str(product["id"]),
+                "SKU": product["title"],
+                "ImagenURI": "None"
+                if len(product["images"]) == 0
+                else product["image"]["src"],
+                "Nombre": product["title"],
+                "Cantidad": 0,
+                "FechaRegistro": product["created_at"],
+                "UltimaFechaActualizacion": product["updated_at"],
+                "Sincronizado": True,
+                "logs": [
+                    {
+                        "Json": json.dumps(product),
+                        "FechaRegistro": str(date.today()),
+                    }
+                ],
+            }
+
+            for variants in product["variants"]:
+                final["Cantidad"] += variants["inventory_quantity"]
+
+            final_list.append(final)
+        print(final_list)
+        return final_list

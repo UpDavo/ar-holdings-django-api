@@ -8,6 +8,7 @@ from ArHoldingsApp.views import (
     GetProducts,
     SetInvoice,
     GetInvoice,
+    bulkInserProducts,
 )
 
 # roter = routers.DefaultRouter()
@@ -23,6 +24,7 @@ from ArHoldingsApp.views import (
 urlpatterns = [
     # # Catalogo
     path(r"products/insertProduct/", InsertProduct.as_view()),
+    path(r"products/bulkInsertProduct/", bulkInserProducts.as_view()),
     path(r"products/updateProduct/", UpdateProduct.as_view()),
     path(r"products/deleteProduct/", DeleteProduct.as_view()),
     path(r"products/getProducts/", GetProducts.as_view()),

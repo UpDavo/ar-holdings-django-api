@@ -18,7 +18,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 class CatalogoArticulos(models.Model):
     ID = models.CharField(max_length=20, primary_key=True)
-    SKU = models.CharField(max_length=20)
+    SKU = models.CharField(max_length=80)
     ImagenURI = models.CharField(max_length=1000)
     Nombre = models.CharField(max_length=1000)
     Cantidad = models.IntegerField()
@@ -39,7 +39,7 @@ class CatalogoLogArticulos(models.Model):
         null=True,
         blank=True,
     )
-    Json = models.CharField(max_length=3000)
+    Json = models.CharField(max_length=10000)
     FechaRegistro = models.CharField(max_length=1000)
 
     def __str__(self):
